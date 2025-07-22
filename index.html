@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>iPhone Passcode Trainer</title>
+  <style>
+    body {
+      margin: 0;
+      background: black;
+      color: white;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      user-select: none;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      margin-bottom: 30px;
+    }
+
+    .passcode-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: transform 0.2s ease;
+    }
+
+    .shake {
+      animation: shake 0.4s;
+    }
+
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      20% { transform: translateX(-10px); }
+      40% { transform: translateX(10px); }
+      60% { transform: translateX(-10px); }
+      80% { transform: translateX(10px); }
+      100% { transform: translateX(0); }
+    }
+
+    .passcode-dots {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 40px;
+    }
+
+    .dot {
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      border: 2px solid white;
+    }
+
+    .dot.filled {
+      background: white;
+    }
+
+    .keypad {
+      display: grid;
+      grid-template-columns: repeat(3, 80px);
+      gap: 15px;
+      justify-content: center;
+    }
+
+    .key {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.1);
+      color: white;
+      font-size: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.2s;
+    }
+
+    .key:active {
+      background: rgba(255,255,255,0.3);
+    }
+
+    .bottom-row {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 10px;
+    }
+
+    .key.delete {
+      font-size: 1rem;
+    }
+
+    .message {
+      color: red;
+      margin-top: 20px;
+      height: 24px;
+      font-size: 1rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <h2>Enter Passcode</h2>
+
+  <div class="passcode-container" id="passcode-container">
+    <div class="passcode-dots" id="passcode-dots">
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+    </div>
+  </div>
+
+  <div class="keypad" id="keypad">
+    <div class="key" data-key="1">1</div>
+    <div class="key" data-key="2">2</div>
+    <div class="key" data-key="3">3</div>
+    <div class="key" data-key="4">4</div>
+    <div class="key" data-key="5">5</div>
+    <div class="key" data-key="6">6</div>
+    <div class="key" data-key="7">7</div>
+    <div class="key" data-key="8">8</div>
+    <div class="key" data-key="9">9</div>
+    <div class="key delete" id="delete-key">Delete</div>
+    <div class="key" data-key="0">0</div>
+    <div class="key" style="visibility: hidden;"></div>
+  </div>
+
+  <div class="message" id="message"></div>
+
+  <script>
+    const correctPasscode = "123456";
+    let input = "";
+
+    const dots = document.querySelectorAll(".dot");
+    const keys = document.querySelectorAll(".key");
+    const message = document.getElementById("message");
+    const passcodeContainer = document.getElementById("passcode-container");
+
+    function updateDots() {
+      dots.forEach((dot, i) => {
+        dot.classList.toggle("filled", i < input.length);
+      });
+    }
+
+    function triggerShake() {
+      passcodeContainer.classList.add("shake");
+      setTimeout(() => {
+        passcodeContainer.classList.remove("shake");
+      }, 400);
+    }
+
+    function checkPasscode() {
+      if (input === correctPasscode) {
+        message.style.color = "lime";
+        message.textContent = "Correct Passcode";
+        setTimeout(() => {
+          message.textContent = "";
+          input = "";
+          updateDots();
+        }, 1500);
+      } else {
+        message.style.color = "red";
+        message.textContent = "Incorrect Passcode";
+        triggerShake();
+        setTimeout(() => {
+          input = "";
+          updateDots();
+        }, 500);
+        // Keep the message for longer (2s), then clear
+        setTimeout(() => {
+          message.textContent = "";
+        }, 2000);
+      }
+    }
+
+    function handleKey(key) {
+      if (key === "Delete") {
+        input = input.slice(0, -1);
+        updateDots();
+        return;
+      }
+
+      if (input.length < 6) {
+        input += key;
+        updateDots();
+        if (input.length === 6) {
+          checkPasscode();
+        }
+      }
+    }
+
+    keys.forEach((keyEl) => {
+      keyEl.addEventListener("click", () => {
+        const key = keyEl.dataset.key || keyEl.id === "delete-key" && "Delete";
+        if (key) {
+          handleKey(key);
+        }
+      });
+    });
+  </script>
+</body>
+</html>
