@@ -167,7 +167,11 @@
           message.textContent = "";
           input = "";
           updateDots();
-        }, 1500);
+        }, 500);
+        // Keep the message for longer (2s), then clear
+        setTimeout(() => {
+          message.textContent = "";
+        }, 2000);
       } else {
         message.style.color = "red";
         message.textContent = "Incorrect Passcode";
